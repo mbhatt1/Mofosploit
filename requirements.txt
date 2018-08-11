@@ -1,0 +1,12 @@
+
+beautifulsoup4
+docopt
+Jinja2
+Keras
+matplotlib
+msgpack-python
+numpy
+pandas
+Scrapy
+tensorflow
+urllib3
