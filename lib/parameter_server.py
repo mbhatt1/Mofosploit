@@ -19,6 +19,7 @@ class Server:
         l_dense2 = Dense(100, activation='relu')(l_dense1)
         l_dense3 = Dense(200, activation='relu')(l_dense2)
         l_dense4 = Dense(400, activation='relu')(l_dense3)
+        l_dense5 = Dense(500, activation='relu')(l_dense4)
         out_actions = Dense(NUM_ACTIONS, activation='softmax')(l_dense4)
         out_value = Dense(1, activation='linear')(l_dense4)
         model = Model(inputs=[l_input], outputs=[out_actions, out_value])
