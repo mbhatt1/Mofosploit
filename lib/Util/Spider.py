@@ -3,9 +3,8 @@ import time
 import codecs
 import scrapy
 from util import Utilty
-from DeepExploit import Msgrpc
-from scrapy.http import Request
-
+from msrpc import *
+import scrapy.http.Request as Request
 
 class SimpleSpider(scrapy.Spider):
     name = 'simple_spider'

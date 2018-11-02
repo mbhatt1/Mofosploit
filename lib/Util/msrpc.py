@@ -1,7 +1,13 @@
 
+import os
+import http.client
+from util import *
+import copy
+import msgpack
+import time
 
 class Msgrpc:
-    def __init__(self, option=[]):
+    def __init__(self, option=dict()):
         self.host = option.get('host') or "127.0.0.1"
         self.port = option.get('port') or 55552
         self.uri = option.get('uri') or "/api/"
@@ -20,7 +26,7 @@ class Msgrpc:
         config = configparser.ConfigParser()
         try:
             config.read(os.path.join(full_path, 'config.ini'))
-        except FileExistsError as err:
+        except Exception as err:
             self.util.print_message(FAIL, 'File exists error: {}'.format(err))
             sys.exit(1)
         # Common setting value.
@@ -39,7 +45,7 @@ class Msgrpc:
 
         # Send request.
         resp = self.send_request(meth, option, origin_option)
-        return msgpack.unpackb(resp.read())
+        return msgpack.unpackb(resp)
 
     def set_api_option(self, meth, option):
         if meth != 'auth.login':

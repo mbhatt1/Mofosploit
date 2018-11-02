@@ -1,5 +1,6 @@
 from Util.util import Utilty
-
+from imports import *
+from Constants import *
 
 '''
 Metasploit Interface
@@ -13,7 +14,7 @@ class Metasploit:
         config = configparser.ConfigParser()
         try:
             config.read(os.path.join(full_path, 'config.ini'))
-        except FileExistsError as err:
+        except Exception as err:
             self.util.print_message(FAIL, 'File exists error: {}'.format(err))
             sys.exit(1)
         # Common setting value.

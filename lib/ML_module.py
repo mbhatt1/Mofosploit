@@ -1,11 +1,14 @@
 
-
-class Nnet:
+from imports import *
+from Constants import *
+from Environment import *
+class Module_NNet:
     def __init__(self, name, parameter_server):
         self.util = Utilty()
         with tf.name_scope(name):
             # s, a, r, s', s' terminal mask
             self.train_queue = [[], [], [], [], []]
+            
             K.set_session(SESS)
 
             # Define neural network.

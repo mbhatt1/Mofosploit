@@ -1,6 +1,6 @@
-from util.util import Utilty
+from lib.Util.util import *
 from lib import * 
-from CreateReport import CreateReport
+from lib.CreateReport import CreateReport
 
 def show_banner(util, delay_time=2.0):
     banner = u"""

@@ -35,11 +35,11 @@ NONE = 'none'     # No label.
 class Utilty:
     def __init__(self):
         # Read config.ini.
-        full_path = os.path.dirname(os.path.abspath(__file__))
+        full_path = os.getcwd()
         config = configparser.ConfigParser()
         try:
             config.read(os.path.join(full_path, 'config.ini'))
-        except FileExistsError as err:
+        except Exception as err:
             self.print_message(FAIL, 'File exists error: {}'.format(err))
             sys.exit(1)
 
