@@ -11,3 +11,4 @@ scrapy
 tensorflow
 urllib3
 msgpack
+beautifulsoup4

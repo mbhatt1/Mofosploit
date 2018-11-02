@@ -3,6 +3,7 @@ from lib.Util.util import Utilty
 from lib import * 
 from lib.CreateReport import CreateReport
 from lib.parameter_server import Server as ParameterServer
+from lib.Environment import *
 class Worker_thread:
     def __init__(self, thread_name, thread_type, parameter_server, rhost):
         self.environment = Environment(thread_name, thread_type, parameter_server, rhost)

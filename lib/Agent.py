@@ -1,8 +1,8 @@
 
-from imports import *
-from Constants import *
-from Environment import *
-from lib.ML_Module import ML_Nnet
+from lib.imports import *
+from lib.Constants import *
+from lib.Environment import *
+from lib.ML_Modules import ML_Nnet
 from lib.parameter_server import Server as ParameterServer
 '''
 Single Agent

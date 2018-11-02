@@ -1,7 +1,7 @@
 
-from imports import *
-from Constants import *
-from Environment import *
+from lib.imports import *
+from lib.Constants import *
+from lib.Environment import *
 class Module_NNet:
     def __init__(self, name, parameter_server):
         self.util = Utilty()

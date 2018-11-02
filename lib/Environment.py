@@ -1,6 +1,6 @@
-from Constants import *
-from Metasploit import *
-from Agent import *
+from lib.Constants import *
+from lib.Metasploit import *
+from lib.Agent import *
 
 class Environment:
     total_reward_vec = np.zeros(10)
