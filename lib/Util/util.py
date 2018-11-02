@@ -137,11 +137,13 @@ class Utilty:
                     client.keep_alive()
                     self.print_message(OK, 'Target URL: {}'.format(target_url))
                     res = http.request('GET', target_url)
-                    self.print_message(OK, 'Port "{}" is web port. status={}'.format(port_num, res.status))
+                    self.print_message(
+                        OK, 'Port "{}" is web port. status={}'.format(port_num, res.status))
                     web_port_list.append([port_num, scheme])
                     break
                 except Exception as e:
-                    self.print_message(WARNING, 'Port "{}" is not web port.'.format(port_num))
+                    self.print_message(
+                        WARNING, 'Port "{}" is not web port.'.format(port_num))
         return web_port_list
 
     # Running spider.
@@ -149,16 +151,19 @@ class Utilty:
         # Execute crawling using Scrapy.
         all_targets_log = []
         for target_info in target_web:
-            target_url = target_info[1] + target_ip + ':' + target_info[0] + '/'
+            target_url = target_info[1] + \
+                target_ip + ':' + target_info[0] + '/'
             target_log = [target_url]
             response_log = target_ip + '_' + target_info[0] + '.log'
             now_time = self.get_current_date('%Y%m%d%H%M%S')
-            result_file = os.path.join(self.output_base_path, now_time + self.output_filename)
+            result_file = os.path.join(
+                self.output_base_path, now_time + self.output_filename)
             option = ' -a target_url=' + target_url + ' -a allow_domain=' + target_ip + \
                      ' -a delay=' + self.spider_delay_time + ' -a store_path=' + self.store_path + \
                      ' -a response_log=' + response_log + ' -a msgrpc_host=' + client.host + \
                      ' -a msgrpc_port=' + str(client.port) + ' -a msgrpc_token=' + client.token.decode('utf-8') + \
-                     ' -a msgrpc_console_id=' + client.console_id.decode('utf-8') + ' -o ' + result_file
+                     ' -a msgrpc_console_id=' + \
+                client.console_id.decode('utf-8') + ' -o ' + result_file
             command = 'scrapy runspider Spider.py' + option
             proc = Popen(command, shell=True)
             proc.wait()
@@ -171,7 +176,8 @@ class Utilty:
                     if target_text != '':
                         dict_json = json.loads(target_text)
                     else:
-                        self.print_message(WARNING, '[{}] is empty.'.format(result_file))
+                        self.print_message(
+                            WARNING, '[{}] is empty.'.format(result_file))
 
             # Exclude except allowed domains.
             for idx in range(len(dict_json)):
@@ -181,8 +187,10 @@ class Utilty:
                         if target_ip == util.parse_url(item).host:
                             target_log.append(item)
                     except Exception as err:
-                        self.print_exception(err, 'Parsed error: {}'.format(item))
-            all_targets_log.append([target_url, os.path.join(self.store_path, response_log), list(set(target_log))])
+                        self.print_exception(
+                            err, 'Parsed error: {}'.format(item))
+            all_targets_log.append([target_url, os.path.join(
+                self.store_path, response_log), list(set(target_log))])
         return all_targets_log
 
     # Load plugin.
@@ -194,5 +202,6 @@ class Utilty:
             loaded_mod = inspect.getmembers(module, inspect.isclass)[0][1]()
             return loaded_mod
         except Exception as err:
-            self.print_exception(err, '{} module not found.'.format(plugin_name))
+            self.print_exception(
+                err, '{} module not found.'.format(plugin_name))
             return None

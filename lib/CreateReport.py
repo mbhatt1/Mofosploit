@@ -32,11 +32,15 @@ class CreateReport:
             sys.exit(1)
 
         self.report_date_format = config['Report']['date_format']
-        self.report_test_path = os.path.join(full_path, config['Report']['report_test'])
-        self.report_test_file = os.path.join(self.report_test_path, config['Report']['report_test_file'])
+        self.report_test_path = os.path.join(
+            full_path, config['Report']['report_test'])
+        self.report_test_file = os.path.join(
+            self.report_test_path, config['Report']['report_test_file'])
         self.template_test = config['Report']['template_test']
-        self.report_train_path = os.path.join(self.report_test_path, config['Report']['report_train'])
-        self.report_train_file = os.path.join(self.report_train_path, config['Report']['report_train_file'])
+        self.report_train_path = os.path.join(
+            self.report_test_path, config['Report']['report_train'])
+        self.report_train_file = os.path.join(
+            self.report_train_path, config['Report']['report_train_file'])
         self.template_train = config['Report']['template_train']
         self.header_train = str(config['Report']['header_train']).split('@')
         self.header_test = str(config['Report']['header_test']).split('@')
@@ -50,7 +54,8 @@ class CreateReport:
         # Gather reporting items.
         if mode == 'train':
             self.util.print_message(NOTE, 'Creating training report.')
-            csv_file_list = glob.glob(os.path.join(self.report_train_path, '*.csv'))
+            csv_file_list = glob.glob(os.path.join(
+                self.report_train_path, '*.csv'))
 
             # Create DataFrame.
             content_list = []
@@ -80,10 +85,12 @@ class CreateReport:
 
                 try:
                     # Setting template.
-                    env = Environment(loader=FileSystemLoader(self.report_train_path))
+                    env = Environment(
+                        loader=FileSystemLoader(self.report_train_path))
                     template = env.get_template(self.template_train)
                     pd.set_option('display.max_colwidth', -1)
-                    html = template.render({'title': 'Deep Exploit Scan Report', 'items': items})
+                    html = template.render(
+                        {'title': 'Deep Exploit Scan Report', 'items': items})
 
                     # Write report.
                     with codecs.open(self.report_train_file, 'w', 'utf-8') as fout:
@@ -91,11 +98,13 @@ class CreateReport:
                 except Exception as err:
                     self.util.print_exception(err, 'Creating report error.')
             else:
-                self.util.print_message(WARNING, 'Exploitation result is not found.')
+                self.util.print_message(
+                    WARNING, 'Exploitation result is not found.')
             self.util.print_message(OK, 'Creating training report done.')
         else:
             self.util.print_message(NOTE, 'Creating testing report.')
-            csv_file_list = glob.glob(os.path.join(self.report_test_path, '*.csv'))
+            csv_file_list = glob.glob(
+                os.path.join(self.report_test_path, '*.csv'))
 
             # Create DataFrame.
             content_list = []
@@ -126,10 +135,12 @@ class CreateReport:
 
                 try:
                     # Setting template.
-                    env = Environment(loader=FileSystemLoader(self.report_test_path))
+                    env = Environment(
+                        loader=FileSystemLoader(self.report_test_path))
                     template = env.get_template(self.template_test)
                     pd.set_option('display.max_colwidth', -1)
-                    html = template.render({'title': 'Deep Exploit Scan Report', 'items': items})
+                    html = template.render(
+                        {'title': 'Deep Exploit Scan Report', 'items': items})
 
                     # Write report.
                     with codecs.open(self.report_test_file, 'w', 'utf-8') as fout:
@@ -137,7 +148,8 @@ class CreateReport:
                 except Exception as err:
                     self.util.print_exception(err, 'Creating report error.')
             else:
-                self.util.print_message(WARNING, 'Exploitation result is not found.')
+                self.util.print_message(
+                    WARNING, 'Exploitation result is not found.')
             self.util.print_message(OK, 'Creating testing report done.')
 
 
@@ -171,7 +183,9 @@ if __name__ == '__main__':
         if start_time is None:
             start_time = '19000101000000'
         get_date = datetime.strptime(start_time, '%Y%m%d%H%M%S')
-        report.create_report(mode, pd.to_datetime(report.util.transform_date_string(get_date)))
+        report.create_report(mode, pd.to_datetime(
+            report.util.transform_date_string(get_date)))
     except Exception as err:
-        report.util.print_exception(err, 'Invalid date format: {}.'.format(start_time))
+        report.util.print_exception(
+            err, 'Invalid date format: {}.'.format(start_time))
         exit(1)

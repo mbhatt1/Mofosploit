@@ -6,6 +6,7 @@ import copy
 import msgpack
 import time
 
+
 class Msgrpc:
     def __init__(self, option=dict()):
         self.host = option.get('host') or "127.0.0.1"
@@ -77,9 +78,11 @@ class Msgrpc:
                         self.retry_count, self.con_retry, option[0], err))
                     time.sleep(1.0)
                     if self.ssl:
-                        self.client = http.client.HTTPSConnection(self.host, self.port)
+                        self.client = http.client.HTTPSConnection(
+                            self.host, self.port)
                     else:
-                        self.client = http.client.HTTPConnection(self.host, self.port)
+                        self.client = http.client.HTTPConnection(
+                            self.host, self.port)
                     if meth != 'auth.login':
                         self.login(self.msgrpc_user, self.msgrpc_pass)
                         option = self.set_api_option(meth, origin_option)
@@ -129,7 +132,8 @@ class Msgrpc:
         try:
             result = ret.get(b'data').decode('utf-8')
             if visualization:
-                self.util.print_message(OK, 'Result of "{}":\n{}'.format(command, result))
+                self.util.print_message(
+                    OK, 'Result of "{}":\n{}'.format(command, result))
         except Exception as e:
             self.util.print_exception(e, 'Failed: {}'.format(command))
         return result
@@ -157,7 +161,8 @@ class Msgrpc:
                 string_list.append(module.decode('utf-8'))
             return string_list
         except Exception as e:
-            self.util.print_exception(e, 'Failed: Getting {} module list.'.format(module_type))
+            self.util.print_exception(
+                e, 'Failed: Getting {} module list.'.format(module_type))
             exit(1)
 
     # Get module detail information.
@@ -179,7 +184,8 @@ class Msgrpc:
 
     # Get payload that compatible target.
     def get_target_compatible_payload_list(self, module_name, target_num):
-        ret = self.call('module.target_compatible_payloads', [module_name, target_num])
+        ret = self.call('module.target_compatible_payloads',
+                        [module_name, target_num])
         try:
             byte_list = ret[b'payloads']
             string_list = []
@@ -187,7 +193,8 @@ class Msgrpc:
                 string_list.append(module.decode('utf-8'))
             return string_list
         except Exception as e:
-            self.util.print_exception(e, 'Failed: module.target_compatible_payloads.')
+            self.util.print_exception(
+                e, 'Failed: module.target_compatible_payloads.')
             return []
 
     # Get module options.
@@ -272,7 +279,8 @@ class Msgrpc:
 
     # Execute single meterpreter.
     def execute_meterpreter_run_single(self, session_id, cmd):
-        ret = self.call('session.meterpreter_run_single', [str(session_id), cmd])
+        ret = self.call('session.meterpreter_run_single',
+                        [str(session_id), cmd])
         try:
             return ret[b'result'].decode('utf-8')
         except Exception as e:
@@ -290,7 +298,8 @@ class Msgrpc:
 
     # Upgrade shell session to meterpreter.
     def upgrade_shell_session(self, session_id, lhost, lport):
-        ret = self.call('session.shell_upgrade', [str(session_id), lhost, lport])
+        ret = self.call('session.shell_upgrade', [
+                        str(session_id), lhost, lport])
         try:
             return ret[b'result'].decode('utf-8')
         except Exception as e:

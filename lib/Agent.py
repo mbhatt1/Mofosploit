@@ -8,6 +8,7 @@ from lib.parameter_server import Server as ParameterServer
 Single Agent
 '''
 
+
 class Agent:
     def __init__(self, name, parameter_server):
         self.brain = ML_NNet(name, parameter_server)

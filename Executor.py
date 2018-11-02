@@ -1,10 +1,9 @@
 from lib.Util.util import *
-from lib import * 
+from lib import *
 from lib.Metasploit import Metasploit
 from lib.parameter_server import Server as ParameterServer
 from lib.CreateReport import CreateReport
 from Worker import Worker_thread
-
 
 
 def show_banner(util, delay_time=2.0):
@@ -31,6 +30,7 @@ def is_valid_ip(rhost):
     except ValueError:
         return False
 
+
 def show_credit(util):
     credit = u"""
        =[ Deep Exploit v0.0.1-beta                                            ]=
@@ -39,7 +39,7 @@ def show_credit(util):
 + -- --=[ Website : https://github.com/13o-bbr-bbq/machine_learning_security/ ]=--
     """
     util.print_message(NONE, credit)
-    
+
 
 # Define command option.
 __doc__ = """{f}
@@ -76,7 +76,7 @@ def check_port_value(port=None, service=None):
             Utilty().print_message(OK, 'Invalid port number: {}'.format(port))
             return False
         elif port not in com_port_list:
-            Utilty().print_message(OK , 'Not open port number: {}'.format(port))
+            Utilty().print_message(OK, 'Not open port number: {}'.format(port))
             return False
         elif service is None:
             Utilty().print_message(OK, 'Invalid service name: {}'.format(str(service)))
@@ -121,7 +121,8 @@ if __name__ == '__main__':
     nmap_result = 'nmap_result_' + env.rhost + '.xml'
     nmap_command = env.nmap_command + ' ' + nmap_result + ' ' + env.rhost + '\n'
     env.execute_nmap(env.rhost, nmap_command, env.nmap_timeout)
-    com_port_list, proto_list, info_list = env.get_port_list(nmap_result, env.rhost)
+    com_port_list, proto_list, info_list = env.get_port_list(
+        nmap_result, env.rhost)
     com_exploit_list = env.get_exploit_list()
     com_payload_list = env.get_payload_list()
     com_payload_list.append('no payload')
@@ -132,7 +133,8 @@ if __name__ == '__main__':
     # Create target host information.
     com_indicate_flag = check_port_value(port, service)
     if com_indicate_flag:
-        target_tree, com_port_list = env.get_target_info_indicate(rhost, proto_list, info_list, port, service)
+        target_tree, com_port_list = env.get_target_info_indicate(
+            rhost, proto_list, info_list, port, service)
     else:
         target_tree = env.get_target_info(rhost, proto_list, info_list)
 
@@ -143,7 +145,8 @@ if __name__ == '__main__':
     MAX_TRAIN_NUM = env.train_max_num
     Tmax = env.train_tmax
 
-    env.client.termination(env.client.console_id)  # Disconnect common MSFconsole.
+    # Disconnect common MSFconsole.
+    env.client.termination(env.client.console_id)
     NUM_ACTIONS = len(com_payload_list)  # Set action number.
     NONE_STATE = np.zeros(NUM_STATES)  # Initialize state (s).
 
@@ -194,7 +197,7 @@ if __name__ == '__main__':
 
         # Execute learning.
         for worker in threads:
-            job = lambda: worker.run(exploit_tree, target_tree, saver, env.save_file)
+            def job(): return worker.run(exploit_tree, target_tree, saver, env.save_file)
             t = threading.Thread(target=job)
             t.start()
     else:
@@ -203,6 +206,6 @@ if __name__ == '__main__':
         util.print_message(OK, 'Restore learned data.')
         saver.restore(SESS, env.save_file)
         for worker in threads:
-            job = lambda: worker.run(exploit_tree, target_tree)
+            def job(): return worker.run(exploit_tree, target_tree)
             t = threading.Thread(target=job)
             t.start()

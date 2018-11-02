@@ -2,13 +2,15 @@
 from lib.imports import *
 from lib.Constants import *
 from lib.Environment import *
+
+
 class Module_NNet:
     def __init__(self, name, parameter_server):
         self.util = Utilty()
         with tf.name_scope(name):
             # s, a, r, s', s' terminal mask
             self.train_queue = [[], [], [], [], []]
-            
+
             K.set_session(SESS)
 
             # Define neural network.
@@ -41,23 +43,27 @@ class Module_NNet:
         p, v = self.model(self.s_t)
 
         # Define loss function.
-        log_prob = tf.log(tf.reduce_sum(p * self.a_t, axis=1, keepdims=True) + 1e-10)
+        log_prob = tf.log(tf.reduce_sum(
+            p * self.a_t, axis=1, keepdims=True) + 1e-10)
         advantage = self.r_t - v
         loss_policy = - log_prob * tf.stop_gradient(advantage)
         # Minimize value error
         loss_value = LOSS_V * tf.square(advantage)
         # Maximize entropy (regularization)
-        entropy = LOSS_ENTROPY * tf.reduce_sum(p * tf.log(p + 1e-10), axis=1, keepdims=True)
+        entropy = LOSS_ENTROPY * \
+            tf.reduce_sum(p * tf.log(p + 1e-10), axis=1, keepdims=True)
         self.loss_total = tf.reduce_mean(loss_policy + loss_value + entropy)
 
         # Define weight.
-        self.weights_params = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope=name)
+        self.weights_params = tf.get_collection(
+            tf.GraphKeys.TRAINABLE_VARIABLES, scope=name)
         # Define grads.
         self.grads = tf.gradients(self.loss_total, self.weights_params)
 
         # Define updating weight of ParameterServe
         self.update_global_weight_params = \
-            parameter_server.optimizer.apply_gradients(zip(self.grads, parameter_server.weights_params))
+            parameter_server.optimizer.apply_gradients(
+                zip(self.grads, parameter_server.weights_params))
 
         # Define copying weight of ParameterServer to LocalBrain.
         self.pull_global_weight_params = [l_p.assign(g_p)
@@ -80,7 +86,8 @@ class Module_NNet:
         if len(self.train_queue[0]) < MIN_BATCH:
             return
 
-        self.util.print_message(NOTE, 'Update LocalBrain weight to ParameterServer.')
+        self.util.print_message(
+            NOTE, 'Update LocalBrain weight to ParameterServer.')
         s, a, r, s_, s_mask = self.train_queue
         self.train_queue = [[], [], [], [], []]
         s = np.vstack(s)
@@ -92,8 +99,10 @@ class Module_NNet:
 
         # Set v to 0 where s_ is terminal state
         r = r + GAMMA_N * v * s_mask
-        feed_dict = {self.s_t: s, self.a_t: a, self.r_t: r}  # data of updating weight.
-        SESS.run(self.update_global_weight_params, feed_dict)  # Update ParameterServer weight.
+        # data of updating weight.
+        feed_dict = {self.s_t: s, self.a_t: a, self.r_t: r}
+        # Update ParameterServer weight.
+        SESS.run(self.update_global_weight_params, feed_dict)
 
     # Return probability of action usin state (s).
     def predict_p(self, s):

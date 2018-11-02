@@ -2,6 +2,8 @@ from lib.imports import *
 
 from lib.Constants import *
 from lib.imports import *
+
+
 class Server:
     def __init__(self):
         # Identify by name to weights by the thread name (Name Space).
@@ -10,9 +12,11 @@ class Server:
             self.model = self._build_model()
 
         # Declare server params.
-        self.weights_params = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope="parameter_server")
+        self.weights_params = tf.get_collection(
+            tf.GraphKeys.TRAINABLE_VARIABLES, scope="parameter_server")
         # Define optimizer.
-        self.optimizer = tf.train.RMSPropOptimizer(LEARNING_RATE, RMSPropDecaly)
+        self.optimizer = tf.train.RMSPropOptimizer(
+            LEARNING_RATE, RMSPropDecaly)
 
     # Define neural network.
     def _build_model(self):

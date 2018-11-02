@@ -2,6 +2,7 @@ from lib.Constants import *
 from lib.Metasploit import *
 from lib.Agent import *
 
+
 class Environment:
     total_reward_vec = np.zeros(10)
     count_trial_each_thread = 0
@@ -14,7 +15,8 @@ class Environment:
         self.util = Utilty()
 
     def run(self, exploit_tree, target_tree):
-        self.agent.brain.pull_parameter_server()  # Copy ParameterSever weight to LocalBrain
+        # Copy ParameterSever weight to LocalBrain
+        self.agent.brain.pull_parameter_server()
         global frames              # Total number of trial in total session.
         global isFinish            # Finishing of learning/testing flag.
         global exploit_count       # Number of successful exploitation.
@@ -40,15 +42,18 @@ class Environment:
                                                                                      target)
                         if skip_flag is False:
                             # Get available payload index.
-                            available_actions = self.env.get_available_actions(payload_list)
+                            available_actions = self.env.get_available_actions(
+                                payload_list)
 
                             # Decide action using epsilon greedy.
                             frames = self.env.eps_steps
-                            _, _, p_list = self.agent.act(s, available_actions, self.env.eps_steps)
+                            _, _, p_list = self.agent.act(
+                                s, available_actions, self.env.eps_steps)
                             # Append all payload probabilities.
                             if p_list is not None:
                                 for prob in p_list:
-                                    execute_list.append([prob[1], exploit, target, prob[0], target_info])
+                                    execute_list.append(
+                                        [prob[1], exploit, target, prob[0], target_info])
                         else:
                             continue
 
@@ -88,12 +93,14 @@ class Environment:
                                                                             session['exploit'],
                                                                             session['target'],
                                                                             session['payload']))
-                internal_ip_list = self.env.execute_post_exploit(session['id'], session['type'])
+                internal_ip_list = self.env.execute_post_exploit(
+                    session['id'], session['type'])
                 for ip_addr in internal_ip_list:
                     if ip_addr not in self.env.prohibited_list and ip_addr != self.env.rhost:
                         new_target_list.append(ip_addr)
                     else:
-                        self.util.print_message(WARNING, 'Target IP={} is prohibited.'.format(ip_addr))
+                        self.util.print_message(
+                            WARNING, 'Target IP={} is prohibited.'.format(ip_addr))
 
             # Deep penetration.
             new_target_list = list(set(new_target_list))
@@ -102,10 +109,13 @@ class Environment:
                 module = 'auxiliary/server/socks4a'
                 self.util.print_message(NOTE, 'Set proxychains: SRVHOST={}, SRVPORT={}'.format(self.env.proxy_host,
                                                                                                str(self.env.proxy_port)))
-                option = {'SRVHOST': self.env.proxy_host, 'SRVPORT': self.env.proxy_port}
-                job_id, uuid = self.env.client.execute_module('auxiliary', module, option)
+                option = {'SRVHOST': self.env.proxy_host,
+                          'SRVPORT': self.env.proxy_port}
+                job_id, uuid = self.env.client.execute_module(
+                    'auxiliary', module, option)
                 if uuid is None:
-                    self.util.print_message(FAIL, 'Failure executing module: {}'.format(module))
+                    self.util.print_message(
+                        FAIL, 'Failure executing module: {}'.format(module))
                     isFinish = True
                     return
 
@@ -118,7 +128,8 @@ class Environment:
             isFinish = True
         else:
             # Execute learning.
-            skip_flag, s, payload_list, target_list, target_info = self.env.reset_state(exploit_tree, target_tree)
+            skip_flag, s, payload_list, target_list, target_info = self.env.reset_state(
+                exploit_tree, target_tree)
 
             # If product name is 'unknown', skip.
             if skip_flag is False:
@@ -126,8 +137,10 @@ class Environment:
                 step = 0
                 while True:
                     # Decide action (randomly or epsilon greedy).
-                    available_actions = self.env.get_available_actions(payload_list)
-                    a, _, _ = self.agent.act(s, available_actions, self.env.eps_steps)
+                    available_actions = self.env.get_available_actions(
+                        payload_list)
+                    a, _, _ = self.agent.act(
+                        s, available_actions, self.env.eps_steps)
                     # Execute action.
                     s_, r, done, _ = self.env.execute_exploit(a,
                                                               self.name,
@@ -140,7 +153,8 @@ class Environment:
                     step += 1
 
                     # Update payload list according to new target.
-                    payload_list = exploit_tree[target_info['exploit']]['targets'][str(self.env.state[ST_TARGET])]
+                    payload_list = exploit_tree[target_info['exploit']]['targets'][str(
+                        self.env.state[ST_TARGET])]
 
                     # If trial exceed maximum number of trials at current episode,
                     # finish trial at current episode.
@@ -161,7 +175,8 @@ class Environment:
 
                     # Plot number of successful post-exploitation each 100 frames.
                     if frames % 100 == 0:
-                        self.util.print_message(NOTE, 'Plot number of successful post-exploitation.')
+                        self.util.print_message(
+                            NOTE, 'Plot number of successful post-exploitation.')
                         plot_count.append(exploit_count)
                         plot_pcount.append(post_exploit_count)
                         exploit_count = 0
@@ -182,7 +197,8 @@ class Environment:
 
                     if done:
                         # Discard the old total reward and keep the latest 10 pieces.
-                        self.total_reward_vec = np.hstack((self.total_reward_vec[1:], step))
+                        self.total_reward_vec = np.hstack(
+                            (self.total_reward_vec[1:], step))
                         # Increment total trial number of thread.
                         self.count_trial_each_thread += 1
                         break
@@ -190,13 +206,15 @@ class Environment:
                 # Output total number of trials, thread name, current reward to console.
                 self.util.print_message(OK, 'Thread: {}, Trial num: {}, '
                                             'Step: {}, Avg step: {}'.format(self.name,
-                                                                            str(self.count_trial_each_thread),
+                                                                            str(
+                                                                                self.count_trial_each_thread),
                                                                             str(step),
                                                                             str(self.total_reward_vec.mean())))
 
                 # End of learning.
                 if frames > MAX_TRAIN_NUM:
-                    self.util.print_message(OK, 'Finish train:{}'.format(self.name))
+                    self.util.print_message(
+                        OK, 'Finish train:{}'.format(self.name))
                     isFinish = True
                     self.util.print_message(OK, 'Stopping learning...')
                     time.sleep(30.0)
@@ -208,12 +226,15 @@ class Environment:
         for target_ip in target_ip_list:
             result_file = 'nmap_result_' + target_ip + '.xml'
             command = self.env.nmap_2nd_command + ' ' + result_file + ' ' + target_ip + '\n'
-            self.env.execute_nmap(target_ip, command, self.env.nmap_2nd_timeout)
-            com_port_list, proto_list, info_list = self.env.get_port_list(result_file, target_ip)
+            self.env.execute_nmap(target_ip, command,
+                                  self.env.nmap_2nd_timeout)
+            com_port_list, proto_list, info_list = self.env.get_port_list(
+                result_file, target_ip)
 
             # Get exploit tree and target info.
             exploit_tree = self.env.get_exploit_tree()
-            target_tree = self.env.get_target_info(target_ip, proto_list, info_list)
+            target_tree = self.env.get_target_info(
+                target_ip, proto_list, info_list)
 
             # Execute exploitation.
             self.env.rhost = target_ip

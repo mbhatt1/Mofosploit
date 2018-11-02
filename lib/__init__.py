@@ -22,7 +22,6 @@ from keras.layers import *
 from keras import backend as K
 
 
-
 # Warnning for TensorFlow acceleration is not shown.
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
