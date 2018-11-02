@@ -12,15 +12,9 @@ Please refer to https://github.com/13o-bbr-bbq/machine_learning_security/tree/ma
 This is my attempt to turn DeepExploit into a framework where the ML algorithms act as plug-and-play modules.
 
 
-## Contributing
-
-Please post an issue before submitting a PR. 
-
-
 ## Authors
 
-* **Isao Takaesu** - *Initial work* 
-- **Manish Bhatt** - Maintainer of this repo
+* **Isao Takaesu** - *PoC* 
 
 ## License
 
