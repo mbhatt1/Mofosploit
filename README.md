@@ -1,5 +1,6 @@
 # MOFOSPLOIT
 
+An attempt at a framework to automate metasploit by making the machine learning module as plug and play. Alpha software and still developing. 
 Essentially a fork of Deep Exploit at https://github.com/13o-bbr-bbq/machine_learning_security/tree/master/DeepExploit
 
 ## Getting Started
