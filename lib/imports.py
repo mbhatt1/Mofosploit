@@ -20,10 +20,11 @@ from docopt import docopt
 from keras.models import *
 from keras.layers import *
 from keras import backend as K
-from Util.util import Utilty
-from CreateReport import *
-from imports import *
-from Constants import *
+from lib.Util.util import Utilty
+from lib.CreateReport import *
+from lib.Constants import *
+
+from lib.parameter_server import Server as ParameterServer
 # Warnning for TensorFlow acceleration is not shown.
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 

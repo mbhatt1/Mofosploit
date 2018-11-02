@@ -2,13 +2,15 @@
 from imports import *
 from Constants import *
 from Environment import *
+from lib.ML_Module import ML_Nnet
+from lib.parameter_server import Server as ParameterServer
 '''
 Single Agent
 '''
 
 class Agent:
     def __init__(self, name, parameter_server):
-        self.brain = Module_NNet(name, parameter_server)
+        self.brain = ML_NNet(name, parameter_server)
         self.memory = []  # Memory of s,a,r,s_
         self.R = 0.  # Time discounted total reward.
 

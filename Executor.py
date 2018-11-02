@@ -1,6 +1,11 @@
 from lib.Util.util import *
 from lib import * 
+from lib.Metasploit import Metasploit
+from lib.parameter_server import Server as ParameterServer
 from lib.CreateReport import CreateReport
+from Worker import Worker_thread
+
+
 
 def show_banner(util, delay_time=2.0):
     banner = u"""
@@ -26,6 +31,15 @@ def is_valid_ip(rhost):
     except ValueError:
         return False
 
+def show_credit(util):
+    credit = u"""
+       =[ Deep Exploit v0.0.1-beta                                            ]=
++ -- --=[ Author  : Isao Takaesu (@bbr_bbq)                                   ]=--
++ -- --=[ Maintainer  : Manish Bhatt (@mbhatt1)                               ]=--
++ -- --=[ Website : https://github.com/13o-bbr-bbq/machine_learning_security/ ]=--
+    """
+    util.print_message(NONE, credit)
+    
 
 # Define command option.
 __doc__ = """{f}

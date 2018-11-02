@@ -1,6 +1,6 @@
-from Util.util import Utilty
-from imports import *
-from Constants import *
+from lib.Util.util import *
+from lib.imports import *
+from lib.Constants import *
 
 '''
 Metasploit Interface

@@ -1,6 +1,6 @@
-from imports import *
-from imports import *
-from Constants import *
+from lib.imports import *
+
+from lib.Constants import *
 class Server:
     def __init__(self):
         # Identify by name to weights by the thread name (Name Space).
