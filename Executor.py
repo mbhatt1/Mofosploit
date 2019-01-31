@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 from lib.Util.util import *
 from lib import *
 from lib.Metasploit import Metasploit
@@ -33,10 +35,8 @@ def is_valid_ip(rhost):
 
 def show_credit(util):
     credit = u"""
-       =[ Deep Exploit v0.0.1-beta                                            ]=
-+ -- --=[ Author  : Isao Takaesu (@bbr_bbq)                                   ]=--
 + -- --=[ Maintainer  : Manish Bhatt (@mbhatt1)                               ]=--
-+ -- --=[ Website : https://github.com/13o-bbr-bbq/machine_learning_security/ ]=--
++ -- --=[ Website : https://github.com/mbhatt1/Mofosploit ]=--
     """
     util.print_message(NONE, credit)
 
